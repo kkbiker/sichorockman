@@ -10,85 +10,112 @@
   margin: 0;
 }
 
-.backButton {
-  background-color: #4ECDC4;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-bottom: 20px;
-}
-
 .title {
   color: #FF6B6B;
   text-align: center;
   margin-bottom: 30px;
 }
 
-.form {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 15px;
-  margin-bottom: 30px;
-  padding: 20px;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  background-color: #fff;
+.categorySelectContainer {
+  margin-bottom: 20px;
+  text-align: center;
 }
 
-.form select, .form button {
-  padding: 10px;
+.categorySelectContainer label {
+  font-size: 1.1em;
+  margin-right: 10px;
+  color: #2C3E50;
+}
+
+.select {
+  padding: 8px 12px;
   border: 1px solid #ccc;
   border-radius: 5px;
+  font-size: 1em;
 }
 
-.form button {
-  background-color: #FF6B6B;
-  color: white;
-  cursor: pointer;
-}
-
-.form button:disabled {
-  background-color: #95A5A6;
-  cursor: not-allowed;
-}
-
-.subtitle {
-  color: #2C3E50;
-  margin-top: 40px;
-  margin-bottom: 20px;
-}
-
-.restrictionList {
-  list-style: none;
-  padding: 0;
-}
-
-.restrictionItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.restrictionTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
   background-color: #fff;
-  border: 1px solid #eee;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  overflow: hidden; /* For rounded corners */
 }
 
-.restrictionItem button {
-  background-color: #4ECDC4;
-  color: white;
+.restrictionTable th,
+.restrictionTable td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.restrictionTable th {
+  background-color: #f8f8f8;
+  font-weight: bold;
+  color: #333;
+}
+
+.restrictionTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.restrictionTable tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+.editButton,
+.deleteButton,
+.addButton,
+.saveButton,
+.cancelButton {
   padding: 8px 12px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  margin-left: 10px;
+  margin-right: 5px;
+  transition: background-color 0.3s ease;
 }
 
-.restrictionItem button:last-child {
-  background-color: #FF6B6B;
+.editButton {
+  background-color: #f39c12;
+  color: white;
+}
+.editButton:hover {
+  background-color: #e67e22;
+}
+
+.deleteButton {
+  background-color: #e74c3c;
+  color: white;
+}
+.deleteButton:hover {
+  background-color: #c0392b;
+}
+
+.addButton {
+  background-color: #4ECDC4;
+  color: white;
+}
+.addButton:hover {
+  background-color: #3cb3a7;
+}
+
+.saveButton {
+  background-color: #4ECDC4;
+  color: white;
+}
+.saveButton:hover {
+  background-color: #3cb3a7;
+}
+
+.cancelButton {
+  background-color: #95A5A6;
+  color: white;
+}
+.cancelButton:hover {
+  background-color: #7f8c8d;
 }
 
 .errorMessage {

@@ -10,6 +10,8 @@ import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.VideoListResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.cache.annotation.Cacheable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -18,16 +20,20 @@ import java.util.stream.Collectors;
 @Service
 public class VideoService {
 
+    private static final Logger logger = LoggerFactory.getLogger(VideoService.class);
+
     private final VideoCacheRepository videoCacheRepository;
     private final YouTube youtube;
     private final YoutubeApiConfig youtubeApiConfig;
     private final TimeRestrictionService timeRestrictionService;
+    private final UserChannelService userChannelService;
 
-    public VideoService(VideoCacheRepository videoCacheRepository, YouTube youtube, YoutubeApiConfig youtubeApiConfig, TimeRestrictionService timeRestrictionService) {
+    public VideoService(VideoCacheRepository videoCacheRepository, YouTube youtube, YoutubeApiConfig youtubeApiConfig, TimeRestrictionService timeRestrictionService, UserChannelService userChannelService) {
         this.videoCacheRepository = videoCacheRepository;
         this.youtube = youtube;
         this.youtubeApiConfig = youtubeApiConfig;
         this.timeRestrictionService = timeRestrictionService;
+        this.userChannelService = userChannelService;
     }
 
     @Cacheable(value = "videoList", key = "#username + #categoryId + #query + #page + #limit", cacheManager = "cacheManager")
@@ -37,13 +43,30 @@ public class VideoService {
         boolean isCategoryRestricted = activeRestrictions.stream()
                 .anyMatch(restriction -> restriction.getCategory().getId().equals(categoryId));
 
+        logger.info("VideoService - CategoryId: {}, Is Category Restricted: {}", categoryId, isCategoryRestricted);
+        logger.info("VideoService - Active Restrictions: {}", activeRestrictions);
+
         if (isCategoryRestricted) {
+            logger.info("VideoService - Category is restricted, returning empty list.");
             return List.of(); // 制限中のカテゴリは空のリストを返す
         }
 
         try {
             YouTube.Search.List search = youtube.search().list(List.of("id", "snippet"));
             
+            if (categoryId != null) {
+                List<String> channelIds = userChannelService.getUserChannels(username, categoryId).stream()
+                        .map(userChannel -> userChannel.getChannel().getYoutubeChannelId())
+                        .collect(Collectors.toList());
+                logger.info("VideoService - Channel IDs for category {}: {}", categoryId, channelIds);
+                if (!channelIds.isEmpty()) {
+                    search.setChannelId(String.join(",", channelIds));
+                } else {
+                    logger.info("VideoService - No channels in this category, returning empty list.");
+                    return List.of(); // No channels in this category, return empty list
+                }
+            }
+
             if (query == null || query.isEmpty()) {
                 query = "React"; // Default query
             }
@@ -54,6 +77,8 @@ public class VideoService {
 
             SearchListResponse searchResponse = search.execute();
             List<SearchResult> searchResultList = searchResponse.getItems();
+
+            logger.info("VideoService - YouTube API Search Results: {}", searchResultList);
 
             if (searchResultList != null) {
                 return searchResultList.stream()
@@ -70,7 +95,7 @@ public class VideoService {
                         .collect(Collectors.toList());
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error fetching videos: ", e);
             // Handle exception appropriately
         }
         return List.of();
@@ -101,9 +126,9 @@ public class VideoService {
                 );
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error fetching video by ID: ", e);
             // Handle exception appropriately
         }
-        return null; // Or throw an exception
+        return null;
     }
 }

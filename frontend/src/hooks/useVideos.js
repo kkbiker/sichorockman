@@ -5,11 +5,22 @@ export function useVideos() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const fetchVideos = useCallback(async (token, query = '') => {
+  const fetchVideos = useCallback(async (token, categoryId = null, searchQuery = '') => {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch(`/api/v1/videos?query=${query}`, {
+      let url = `/api/v1/videos?`;
+      if (categoryId) {
+        url += `categoryId=${categoryId}&`;
+      }
+      if (searchQuery) {
+        url += `q=${searchQuery}&`;
+      }
+      // Remove trailing '&' if any
+      if (url.endsWith('&')) {
+        url = url.slice(0, -1);
+      }
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -33,7 +44,7 @@ export function useVideos() {
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('token');
       if (token) {
-        fetchVideos(token);
+        fetchVideos(token, null, ''); // Initial fetch without category or search query
       }
     }
   }, [fetchVideos]);

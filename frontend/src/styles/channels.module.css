@@ -54,6 +54,19 @@
   margin-bottom: 20px;
 }
 
+.searchResults {
+  margin-top: 30px;
+  margin-bottom: 50px;
+}
+
+.searchResults h2,
+.registeredChannels h2 {
+  color: #2C3E50;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
 .channelCard {
   display: flex;
   align-items: center;
@@ -112,4 +125,75 @@
 .addButton:disabled {
   background-color: #95A5A6;
   cursor: not-allowed;
+}
+
+.registeredChannels {
+  margin-top: 30px;
+}
+
+.registeredCategorySection {
+  margin-bottom: 30px;
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.registeredCategorySection h3 {
+  color: #4ECDC4;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.2em;
+}
+
+.registeredChannelList {
+  list-style: none;
+  padding: 0;
+}
+
+.registeredChannelItem {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px 0;
+  border-bottom: 1px dashed #eee;
+}
+
+.registeredChannelItem:last-child {
+  border-bottom: none;
+}
+
+.registeredChannelThumbnail {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.registeredChannelInfo {
+  flex-grow: 1;
+}
+
+.registeredChannelInfo h4 {
+  margin: 0 0 3px 0;
+  color: #2C3E50;
+}
+
+.registeredChannelInfo p {
+  margin: 0;
+  color: #7f8c8d;
+  font-size: 0.8em;
+}
+
+.deleteRegisteredChannelButton {
+  background-color: #e74c3c;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.deleteRegisteredChannelButton:hover {
+  background-color: #c0392b;
 }

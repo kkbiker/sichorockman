@@ -31,4 +31,10 @@ public class Channel implements Serializable {
     @Column(name = "thumbnail_url", length = 500)
     private String thumbnailUrl;
 
+    @Column(name = "subscriber_count")
+    private Long subscriberCount;
+
+    @Column(name = "video_count")
+    private Long videoCount;
+
 }

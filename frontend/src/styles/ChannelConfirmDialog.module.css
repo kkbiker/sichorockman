@@ -1,0 +1,83 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.dialog {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  width: 90%;
+  max-width: 450px;
+}
+
+.title {
+  color: #FF6B6B;
+  margin-bottom: 20px;
+  font-size: 1.8em;
+}
+
+.message {
+  font-size: 1.1em;
+  color: #333;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.channelName {
+  font-weight: bold;
+  color: #4ECDC4;
+}
+
+.categoryName {
+  font-weight: bold;
+  color: #FF6B6B;
+}
+
+.count {
+  font-size: 0.9em;
+  color: #777;
+  margin-bottom: 25px;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.cancelButton,
+.confirmButton {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.cancelButton {
+  background-color: #95A5A6;
+  color: white;
+}
+.cancelButton:hover {
+  background-color: #7f8c8d;
+}
+
+.confirmButton {
+  background-color: #4ECDC4;
+  color: white;
+}
+.confirmButton:hover {
+  background-color: #3cb3a7;
+}

@@ -105,7 +105,9 @@ public class UserChannelService {
                         youtubeChannel.getId(),
                         snippet.getTitle(),
                         snippet.getDescription(),
-                        snippet.getThumbnails().getDefault().getUrl()
+                        snippet.getThumbnails().getDefault().getUrl(),
+                        youtubeChannel.getStatistics() != null ? youtubeChannel.getStatistics().getSubscriberCount().longValue() : 0L,
+                        youtubeChannel.getStatistics() != null ? youtubeChannel.getStatistics().getVideoCount().longValue() : 0L
                 );
             }
         } catch (IOException e) {

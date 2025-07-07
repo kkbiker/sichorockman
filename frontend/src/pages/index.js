@@ -6,6 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useVideos } from '../hooks/useVideos';
 import { useCategories } from '../hooks/useCategories';
 import { useTimeRestrictions } from '../hooks/useTimeRestrictions';
+import { useChannels } from '../hooks/useChannels';
 import styles from '../styles/index.module.css';
 
 export default function Home() {
@@ -14,6 +15,7 @@ export default function Home() {
   const { videos, loading: videosLoading, error: videosError, fetchVideos } = useVideos();
   const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
   const { activeRestrictions, loading: restrictionsLoading, error: restrictionsError } = useTimeRestrictions();
+  const { channels, getUserChannels } = useChannels();
   const [time, setTime] = useState('');
   const [activeCategory, setActiveCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -39,8 +41,9 @@ export default function Home() {
     const token = localStorage.getItem('token');
     if (token && activeCategory) { // activeCategoryが選択されていることを確認
       fetchVideos(token, activeCategory, searchQuery); // categoryIdを渡す
+      getUserChannels(activeCategory); // カテゴリに紐づくチャンネルを取得
     }
-  }, [activeCategory, activeRestrictions, searchQuery, fetchVideos]); // 依存配列にactiveCategoryとactiveRestrictionsを追加
+  }, [activeCategory, activeRestrictions, searchQuery, fetchVideos, getUserChannels]); // 依存配列にactiveCategoryとactiveRestrictionsを追加
 
   const isCategoryRestricted = (categoryId) => {
     return activeRestrictions && activeRestrictions.some(restriction => restriction.category && restriction.category.id === categoryId);

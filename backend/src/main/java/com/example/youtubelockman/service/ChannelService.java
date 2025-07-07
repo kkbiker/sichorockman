@@ -39,15 +39,29 @@ public class ChannelService {
             SearchListResponse searchResponse = search.execute();
             List<SearchResult> searchResultList = searchResponse.getItems();
 
-            if (searchResultList != null) {
-                return searchResultList.stream()
-                        .map(result -> new Channel(
-                                null,
-                                result.getId().getChannelId(),
-                                result.getSnippet().getTitle(),
-                                result.getSnippet().getDescription(),
-                                result.getSnippet().getThumbnails().getDefault().getUrl()
-                        ))
+            if (searchResultList != null && !searchResultList.isEmpty()) {
+                List<String> channelIds = searchResultList.stream()
+                        .map(result -> result.getId().getChannelId())
+                        .collect(Collectors.toList());
+
+                YouTube.Channels.List channelList = youtube.channels().list(List.of("snippet", "statistics"));
+                channelList.setId(channelIds);
+                channelList.setFields("items(id,snippet/title,snippet/description,snippet/thumbnails/default/url,statistics/subscriberCount,statistics/videoCount)");
+                com.google.api.services.youtube.model.ChannelListResponse channelListResponse = channelList.execute();
+
+                return channelListResponse.getItems().stream()
+                        .map(youtubeChannel -> {
+                            Channel newChannel = new Channel(
+                                    null,
+                                    youtubeChannel.getId(),
+                                    youtubeChannel.getSnippet().getTitle(),
+                                    youtubeChannel.getSnippet().getDescription(),
+                                    youtubeChannel.getSnippet().getThumbnails().getDefault().getUrl(),
+                                    youtubeChannel.getStatistics() != null ? youtubeChannel.getStatistics().getSubscriberCount().longValue() : 0L,
+                                    youtubeChannel.getStatistics() != null ? youtubeChannel.getStatistics().getVideoCount().longValue() : 0L
+                            );
+                            return newChannel;
+                        })
                         .collect(Collectors.toList());
             }
         } catch (IOException e) {

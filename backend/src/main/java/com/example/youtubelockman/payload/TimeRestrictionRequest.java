@@ -7,6 +7,6 @@ import java.time.LocalTime;
 public class TimeRestrictionRequest {
     private Long categoryId;
     private Integer dayOfWeek;
-    private LocalTime startTime;
-    private LocalTime endTime;
+    private String startTime;
+    private String endTime;
 }

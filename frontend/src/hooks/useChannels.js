@@ -70,5 +70,78 @@ export function useChannels() {
     }
   }, []);
 
-  return { channels, loading, error, searchChannels, addChannel, setError };
+  const getUserChannels = useCallback(async (categoryId = null) => {
+    setLoading(true);
+    setError('');
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Authentication token not found. Please log in.');
+        setLoading(false);
+        return [];
+      }
+
+      let url = `/api/v1/user-channels`;
+      if (categoryId) {
+        url += `?categoryId=${categoryId}`;
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setChannels(data);
+        return data;
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Failed to fetch user channels.');
+        return [];
+      }
+    } catch (err) {
+      setError('Network error. Please try again later.');
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const deleteUserChannel = useCallback(async (id) => {
+    setLoading(true);
+    setError('');
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Authentication token not found. Please log in.');
+        setLoading(false);
+        return false;
+      }
+
+      const response = await fetch(`/api/v1/user-channels/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        // 削除成功後、リストを再取得
+        return true;
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Failed to delete user channel.');
+        return false;
+      }
+    } catch (err) {
+      setError('Network error. Please try again later.');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { channels, loading, error, searchChannels, addChannel, getUserChannels, deleteUserChannel, setError };
 }

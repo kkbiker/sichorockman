@@ -74,7 +74,7 @@ export function useCategories() {
     }
   };
 
-  const updateCategory = async (id, name) => {
+  const updateCategory = async (id, name, channelLimit) => {
     setError('');
     setLoading(true);
     try {
@@ -91,7 +91,7 @@ export function useCategories() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, channelLimit }),
       });
 
       if (response.ok) {

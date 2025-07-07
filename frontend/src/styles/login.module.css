@@ -57,7 +57,6 @@
   position: absolute;
   right: 10px;
   top: 50%;
-  transform: translateY(-50%);
   background-color: #4ECDC4; /* ボタンの背景色 */
   color: white; /* ボタンの文字色 */
   padding: 5px 10px; /* パディング */

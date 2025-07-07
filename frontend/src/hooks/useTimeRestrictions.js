@@ -5,11 +5,15 @@ export function useTimeRestrictions() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const fetchTimeRestrictions = useCallback(async (token) => {
+  const fetchTimeRestrictions = useCallback(async (token, categoryId = null) => {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('/api/v1/time-restrictions', {
+      let url = '/api/v1/time-restrictions';
+      if (categoryId) {
+        url += `?categoryId=${categoryId}`;
+      }
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
