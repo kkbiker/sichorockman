@@ -1,0 +1,25 @@
+# === Node.js / frontend (Next.js) ===
+/frontend/node_modules/
+/frontend/.next/
+/frontend/.env.local
+
+# === Java / backend ===
+/backend/target/
+/backend/*.jar
+
+# === Docker & DB & バイナリ ===
+*.log
+*.pid
+*.sqlite3
+*.db
+*.pyc
+*.pyo
+docker-compose.override.yml
+.env
+
+# === Editor config ===
+.vscode/
+.idea/
+
+# === OS / macOS ===
+.DS_Store
