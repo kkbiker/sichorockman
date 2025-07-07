@@ -21,7 +21,7 @@ export function useLogin() {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem('token', data.token);
+        localStorage.setItem('token', data.accessToken);
         router.push('/');
         return true;
       } else {

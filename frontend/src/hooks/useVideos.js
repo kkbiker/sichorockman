@@ -1,22 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export function useVideos() {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const fetchVideos = async () => {
+  const fetchVideos = useCallback(async (token, query = '') => {
     setLoading(true);
     setError('');
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setError('Authentication token not found. Please log in.');
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch('/api/v1/videos', {
+      const response = await fetch(`/api/v1/videos?query=${query}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -34,11 +27,16 @@ export function useVideos() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchVideos();
-  }, []);
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      if (token) {
+        fetchVideos(token);
+      }
+    }
+  }, [fetchVideos]);
 
   return { videos, loading, error, fetchVideos, setError };
 }

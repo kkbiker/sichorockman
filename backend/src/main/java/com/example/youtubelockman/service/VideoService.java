@@ -2,12 +2,14 @@ package com.example.youtubelockman.service;
 
 import com.example.youtubelockman.config.YoutubeApiConfig;
 import com.example.youtubelockman.model.VideoCache;
+import com.example.youtubelockman.model.TimeRestriction;
 import com.example.youtubelockman.repository.VideoCacheRepository;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.VideoListResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,17 +21,29 @@ public class VideoService {
     private final VideoCacheRepository videoCacheRepository;
     private final YouTube youtube;
     private final YoutubeApiConfig youtubeApiConfig;
+    private final TimeRestrictionService timeRestrictionService;
 
-    public VideoService(VideoCacheRepository videoCacheRepository, YouTube youtube, YoutubeApiConfig youtubeApiConfig) {
+    public VideoService(VideoCacheRepository videoCacheRepository, YouTube youtube, YoutubeApiConfig youtubeApiConfig, TimeRestrictionService timeRestrictionService) {
         this.videoCacheRepository = videoCacheRepository;
         this.youtube = youtube;
         this.youtubeApiConfig = youtubeApiConfig;
+        this.timeRestrictionService = timeRestrictionService;
     }
 
-    public List<VideoCache> getVideos(Long userId, Long categoryId, String query, int page, int limit) {
+    @Cacheable(value = "videoList", key = "#username + #categoryId + #query + #page + #limit", cacheManager = "cacheManager")
+    public List<VideoCache> getVideos(String username, Long categoryId, String query, int page, int limit) {
+        // 時間制限チェック
+        List<TimeRestriction> activeRestrictions = timeRestrictionService.getCurrentTimeRestrictions(username);
+        boolean isCategoryRestricted = activeRestrictions.stream()
+                .anyMatch(restriction -> restriction.getCategory().getId().equals(categoryId));
+
+        if (isCategoryRestricted) {
+            return List.of(); // 制限中のカテゴリは空のリストを返す
+        }
+
         try {
             YouTube.Search.List search = youtube.search().list(List.of("id", "snippet"));
-            search.setKey(youtubeApiConfig.getYoutubeApiKey());
+            
             if (query == null || query.isEmpty()) {
                 query = "React"; // Default query
             }
@@ -62,10 +76,11 @@ public class VideoService {
         return List.of();
     }
 
+    @Cacheable(value = "videoDetail", key = "#videoId", cacheManager = "cacheManager")
     public VideoCache getVideoById(String videoId) {
         try {
             YouTube.Videos.List videoList = youtube.videos().list(List.of("snippet"));
-            videoList.setKey(youtubeApiConfig.getYoutubeApiKey());
+            
             videoList.setId(List.of(videoId)); 
             videoList.setFields("items(id,snippet/title,snippet/description,snippet/thumbnails/default/url,snippet/channelTitle,snippet/publishedAt)");
 

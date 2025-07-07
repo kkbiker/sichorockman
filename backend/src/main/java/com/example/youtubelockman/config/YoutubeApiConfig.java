@@ -1,5 +1,6 @@
 package com.example.youtubelockman.config;
 
+import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
@@ -15,7 +16,10 @@ public class YoutubeApiConfig {
 
     @Bean
     public YouTube youtube() {
-        return new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), httpRequest -> {})
+        return new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), httpRequest -> {
+            GenericUrl url = httpRequest.getUrl();
+            url.put("key", youtubeApiKey);
+        })
                 .setApplicationName("youtube-lockman")
                 .build();
     }

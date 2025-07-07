@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 
-export function useCategories() {
-  const [categories, setCategories] = useState([]);
+export function useTimeRestrictions() {
+  const [timeRestrictions, setTimeRestrictions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const fetchCategories = useCallback(async (token) => {
+  const fetchTimeRestrictions = useCallback(async (token) => {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('/api/v1/categories', {
+      const response = await fetch('/api/v1/time-restrictions', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -17,10 +17,10 @@ export function useCategories() {
 
       if (response.ok) {
         const data = await response.json();
-        setCategories(data);
+        setTimeRestrictions(data);
       } else {
         const errorData = await response.json();
-        setError(errorData.message || 'Failed to fetch categories.');
+        setError(errorData.message || 'Failed to fetch time restrictions.');
       }
     } catch (err) {
       setError('Network error. Please try again later.');
@@ -29,41 +29,32 @@ export function useCategories() {
     }
   }, []);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      if (token) {
-        fetchCategories(token);
-      }
-    }
-  }, [fetchCategories]);
-
-  const createCategory = async (name, channelLimit) => {
-    setError('');
+  const createTimeRestriction = useCallback(async (restriction) => {
     setLoading(true);
+    setError('');
     try {
       const token = localStorage.getItem('token');
       if (!token) {
         setError('Authentication token not found. Please log in.');
         setLoading(false);
-        return;
+        return false;
       }
 
-      const response = await fetch('/api/v1/categories', {
+      const response = await fetch('/api/v1/time-restrictions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ name, channelLimit }),
+        body: JSON.stringify(restriction),
       });
 
       if (response.ok) {
-        fetchCategories(token); // Refresh list
+        fetchTimeRestrictions(token); // Refresh list
         return true;
       } else {
         const errorData = await response.json();
-        setError(errorData.message || 'Failed to create category.');
+        setError(errorData.message || 'Failed to create time restriction.');
         return false;
       }
     } catch (err) {
@@ -72,34 +63,34 @@ export function useCategories() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchTimeRestrictions]);
 
-  const updateCategory = async (id, name) => {
-    setError('');
+  const updateTimeRestriction = useCallback(async (id, restriction) => {
     setLoading(true);
+    setError('');
     try {
       const token = localStorage.getItem('token');
       if (!token) {
         setError('Authentication token not found. Please log in.');
         setLoading(false);
-        return;
+        return false;
       }
 
-      const response = await fetch(`/api/v1/categories/${id}`, {
+      const response = await fetch(`/api/v1/time-restrictions/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify(restriction),
       });
 
       if (response.ok) {
-        fetchCategories(token); // Refresh list
+        fetchTimeRestrictions(token); // Refresh list
         return true;
       } else {
         const errorData = await response.json();
-        setError(errorData.message || 'Failed to update category.');
+        setError(errorData.message || 'Failed to update time restriction.');
         return false;
       }
     } catch (err) {
@@ -108,20 +99,20 @@ export function useCategories() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchTimeRestrictions]);
 
-  const deleteCategory = async (id) => {
-    setError('');
+  const deleteTimeRestriction = useCallback(async (id) => {
     setLoading(true);
+    setError('');
     try {
       const token = localStorage.getItem('token');
       if (!token) {
         setError('Authentication token not found. Please log in.');
         setLoading(false);
-        return;
+        return false;
       }
 
-      const response = await fetch(`/api/v1/categories/${id}`, {
+      const response = await fetch(`/api/v1/time-restrictions/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -129,11 +120,11 @@ export function useCategories() {
       });
 
       if (response.ok) {
-        fetchCategories(token); // Refresh list
+        fetchTimeRestrictions(token); // Refresh list
         return true;
       } else {
         const errorData = await response.json();
-        setError(errorData.message || 'Failed to delete category.');
+        setError(errorData.message || 'Failed to delete time restriction.');
         return false;
       }
     } catch (err) {
@@ -142,7 +133,19 @@ export function useCategories() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchTimeRestrictions]);
 
-  return { categories, loading, error, createCategory, updateCategory, deleteCategory, setError };
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      if (token) {
+        fetchTimeRestrictions(token);
+        // 1分ごとに更新（必要であれば）
+        const intervalId = setInterval(() => fetchTimeRestrictions(token), 60000);
+        return () => clearInterval(intervalId);
+      }
+    }
+  }, [fetchTimeRestrictions]);
+
+  return { timeRestrictions, loading, error, createTimeRestriction, updateTimeRestriction, deleteTimeRestriction, fetchTimeRestrictions };
 }

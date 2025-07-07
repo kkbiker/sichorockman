@@ -1,99 +1,115 @@
-
-.channels-container {
+.container {
   padding: 20px;
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
-.channels-title {
-  color: #ff6b6b;
-  text-align: center;
-  margin-bottom: 30px;
+.embeddedContainer {
+  padding: 0;
+  max-width: none;
+  margin: 0;
 }
 
-.search-container {
-  display: flex;
-  margin-bottom: 30px;
-}
-
-.search-input {
-  flex-grow: 1;
-  padding: 12px 15px;
-  border: 1px solid #ced4da;
-  border-radius: 4px 0 0 4px;
-  font-size: 16px;
-}
-.search-input:focus {
-  border-color: #ff6b6b;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.25);
-}
-
-.search-button {
-  padding: 12px 20px;
-  background-color: #ff6b6b;
+.backButton {
+  background-color: #4ECDC4;
   color: white;
+  padding: 10px 15px;
   border: none;
-  border-radius: 0 4px 4px 0;
-  font-size: 16px;
+  border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-.search-button:hover {
-  background-color: #e05656;
-}
-.search-button:disabled {
-  background-color: #95a5a6;
-  cursor: not-allowed;
+  margin-bottom: 20px;
 }
 
-.channel-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-}
-
-.channel-card {
-  background-color: #ffffff;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.title {
+  color: #FF6B6B;
   text-align: center;
+  margin-bottom: 30px;
 }
 
-.channel-thumbnail {
-  width: 100px;
-  height: 100px;
+.searchForm {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.searchInput {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.searchButton {
+  background-color: #4ECDC4;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.errorMessage {
+  color: #FF6B6B;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.channelCard {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background-color: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.channelThumbnail {
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   object-fit: cover;
-  margin-bottom: 10px;
 }
 
-.channel-name {
-  margin: 10px 0 5px;
-  color: #34495e;
-  font-size: 18px;
-}
-
-.channel-description {
-  color: #7f8c8d;
-  font-size: 14px;
-  margin-bottom: 10px;
+.channelInfo {
   flex-grow: 1;
 }
 
-.register-button {
-  border-radius: 4px;
-  width: 100%;
-  margin-top: auto; /* Push button to the bottom */
+.channelInfo h3 {
+  margin: 0 0 5px 0;
+  color: #2C3E50;
 }
 
-.error-message {
-  color: #e74c3c;
-  font-size: 14px;
-  margin-top: 15px;
-  text-align: center;
+.channelInfo p {
+  margin: 0;
+  color: #7f8c8d;
+  font-size: 0.9em;
+}
+
+.channelActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.categorySelect {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.addButton {
+  background-color: #FF6B6B;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.addButton:disabled {
+  background-color: #95A5A6;
+  cursor: not-allowed;
 }

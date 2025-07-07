@@ -7,12 +7,14 @@ import lombok.AllArgsConstructor;
 import jakarta.persistence.*;
 import java.time.LocalTime;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "time_restrictions")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TimeRestriction {
+public class TimeRestriction implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +24,7 @@ public class TimeRestriction {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 

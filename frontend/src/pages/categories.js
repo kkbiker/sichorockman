@@ -1,22 +1,25 @@
 import { useState } from 'react';
 import { useCategories } from '../hooks/useCategories';
 import styles from '../styles/categories.module.css';
+// import Link from 'next/link'; // Linkはsettings.jsで管理するため削除
 
-export default function Categories() {
+export default function Categories({ isEmbedded }) { // isEmbeddedプロパティを追加
   const { categories, loading, error, createCategory, updateCategory, deleteCategory, setError } = useCategories();
   const [newCategoryName, setNewCategoryName] = useState('');
+  const [newChannelLimit, setNewChannelLimit] = useState(10); // channelLimitのstateを追加
   const [editingCategory, setEditingCategory] = useState(null);
 
   const handleCreateCategory = async (e) => {
     e.preventDefault();
-    const success = await createCategory(newCategoryName);
+    const success = await createCategory(newCategoryName, newChannelLimit); // channelLimitを渡す
     if (success) {
       setNewCategoryName('');
+      setNewChannelLimit(10); // リセット
     }
   };
 
-  const handleUpdateCategory = async (id, newName) => {
-    const success = await updateCategory(id, newName);
+  const handleUpdateCategory = async (id, newName, newLimit) => { // newLimitを追加
+    const success = await updateCategory(id, newName, newLimit);
     if (success) {
       setEditingCategory(null);
     }
@@ -27,7 +30,13 @@ export default function Categories() {
   };
 
   return (
-    <div className={styles.container}>
+    <div className={isEmbedded ? styles.embeddedContainer : styles.container}> {/* isEmbeddedに応じてスタイルを切り替え */}
+      {/* isEmbeddedがtrueの場合は戻るボタンを非表示 */}
+      {!isEmbedded && (
+        <Link href="/">
+          <button className={styles.backButton}>← メインに戻る</button>
+        </Link>
+      )}
       <h1 className={styles.title}>カテゴリ管理</h1>
 
       <form className={styles['category-form']} onSubmit={handleCreateCategory}>
@@ -37,6 +46,15 @@ export default function Categories() {
           value={newCategoryName}
           onChange={(e) => setNewCategoryName(e.target.value)}
           required
+          className={styles.input}
+        />
+        <input
+          type="number"
+          placeholder="チャンネル上限"
+          value={newChannelLimit}
+          onChange={(e) => setNewChannelLimit(parseInt(e.target.value))}
+          required
+          min="1"
           className={styles.input}
         />
         <button type="submit" disabled={loading} className={styles.button}>
@@ -50,28 +68,44 @@ export default function Categories() {
         {categories.map((category) => (
           <li key={category.id} className={styles['category-item']}>
             {editingCategory && editingCategory.id === category.id ? (
-              <input
-                type="text"
-                value={editingCategory.name}
-                onChange={(e) =>
-                  setEditingCategory({ ...editingCategory, name: e.target.value })
-                }
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    handleUpdateCategory(editingCategory.id, editingCategory.name);
+              <>
+                <input
+                  type="text"
+                  value={editingCategory.name}
+                  onChange={(e) =>
+                    setEditingCategory({ ...editingCategory, name: e.target.value })
                   }
-                }}
-                className={styles.input}
-              />
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleUpdateCategory(editingCategory.id, editingCategory.name, editingCategory.channelLimit);
+                    }
+                  }}
+                  className={styles.input}
+                />
+                <input
+                  type="number"
+                  value={editingCategory.channelLimit}
+                  onChange={(e) =>
+                    setEditingCategory({ ...editingCategory, channelLimit: parseInt(e.target.value) })
+                  }
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleUpdateCategory(editingCategory.id, editingCategory.name, editingCategory.channelLimit);
+                    }
+                  }}
+                  min="1"
+                  className={styles.input}
+                />
+              </>
             ) : (
-              <span className={styles['category-name']}>{category.name}</span>
+              <span className={styles['category-name']}>{category.name} (上限: {category.channelLimit})</span>
             )}
             <div className={styles['action-buttons']}>
               {editingCategory && editingCategory.id === category.id ? (
                 <>
                   <button
                     onClick={() =>
-                      handleUpdateCategory(editingCategory.id, editingCategory.name)
+                      handleUpdateCategory(editingCategory.id, editingCategory.name, editingCategory.channelLimit)
                     }
                     disabled={loading}
                     className={`${styles.button} ${styles['edit-button']}`}

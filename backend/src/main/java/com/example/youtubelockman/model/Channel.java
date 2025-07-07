@@ -6,12 +6,14 @@ import lombok.AllArgsConstructor;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "channels")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Channel {
+public class Channel implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,13 +22,13 @@ public class Channel {
     @Column(name = "youtube_channel_id", nullable = false, unique = true)
     private String youtubeChannelId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String name;
 
-    @Column
+    @Column(length = 2000)
     private String description;
 
-    @Column(name = "thumbnail_url")
+    @Column(name = "thumbnail_url", length = 500)
     private String thumbnailUrl;
 
 }

@@ -8,12 +8,14 @@ import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "categories")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Category {
+public class Category implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

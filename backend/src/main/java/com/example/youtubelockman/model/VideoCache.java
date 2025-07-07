@@ -7,12 +7,14 @@ import lombok.AllArgsConstructor;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "video_cache")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class VideoCache {
+public class VideoCache implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

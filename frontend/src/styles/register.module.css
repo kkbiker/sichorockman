@@ -1,13 +1,14 @@
 
-.register-container {
+.container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: #F8F9FA;
+  font-family: 'Noto Sans JP', sans-serif;
 }
 
-.register-card {
+.card {
   background-color: #ffffff;
   padding: 40px;
   border-radius: 8px;
@@ -17,30 +18,63 @@
   max-width: 400px;
 }
 
-.register-title {
-  color: #ff6b6b;
+.title {
+  color: #FF6B6B;
   margin-bottom: 30px;
   font-size: 28px;
+  font-weight: bold;
 }
 
-.register-input {
+.inputGroup {
+  margin-bottom: 20px;
+  text-align: left;
+  position: relative; /* for togglePassword */
+}
+
+.inputGroup label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #2C3E50;
+}
+
+.input {
   width: 100%;
   padding: 12px 15px;
-  margin-bottom: 20px;
   border: 1px solid #ced4da;
   border-radius: 4px;
   font-size: 16px;
+  box-sizing: border-box; /* paddingとborderをwidthに含める */
 }
-.register-input:focus {
-  border-color: #ff6b6b;
+
+.input:focus {
+  border-color: #FF6B6B;
   outline: none;
   box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.25);
 }
 
-.register-button {
+.togglePassword {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #4ECDC4; /* ボタンの背景色 */
+  color: white; /* ボタンの文字色 */
+  padding: 5px 10px; /* パディング */
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s ease;
+}
+.togglePassword:hover {
+  background-color: #3cb3a7;
+}
+
+.button {
   width: 100%;
   padding: 12px 15px;
-  background-color: #ff6b6b;
+  background-color: #FF6B6B;
   color: white;
   border: none;
   border-radius: 4px;
@@ -48,29 +82,33 @@
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-.register-button:hover {
+
+.button:hover {
   background-color: #e05656;
 }
-.register-button:disabled {
-  background-color: #95a5a6;
+
+.button:disabled {
+  background-color: #95A5A6;
   cursor: not-allowed;
 }
 
-.link-text {
+.linkText {
   margin-top: 20px;
   font-size: 14px;
-  color: #2c3e50;
+  color: #2C3E50;
 }
-.link-text a {
-  color: #4ecdc4;
+
+.linkText a {
+  color: #4ECDC4;
   text-decoration: none;
 }
-.link-text a:hover {
+
+.linkText a:hover {
   text-decoration: underline;
 }
 
-.error-message {
-  color: #e74c3c;
+.errorMessage {
+  color: #FF6B6B;
   font-size: 14px;
   margin-bottom: 15px;
 }

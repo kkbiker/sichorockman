@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 export function useChannels() {
   const [channels, setChannels] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const searchChannels = async (query) => {
-    setError('');
+  const searchChannels = useCallback(async (query) => {
     setLoading(true);
+    setError('');
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -16,7 +16,7 @@ export function useChannels() {
         return;
       }
 
-      const response = await fetch(`/api/v1/channels/search?q=${query}`, {
+      const response = await fetch(`/api/v1/channels/search?q=${encodeURIComponent(query)}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -34,44 +34,41 @@ export function useChannels() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const registerChannel = async (channel) => {
+  const addChannel = useCallback(async (youtubeChannelId, categoryId) => {
+    setLoading(true);
     setError('');
     try {
       const token = localStorage.getItem('token');
       if (!token) {
         setError('Authentication token not found. Please log in.');
-        return;
+        setLoading(false);
+        return false;
       }
 
-      const response = await fetch('/api/v1/user-channels', {
+      const response = await fetch(`/api/v1/user-channels?youtubeChannelId=${encodeURIComponent(youtubeChannelId)}&categoryId=${categoryId}`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          youtubeChannelId: channel.youtubeChannelId,
-          name: channel.name,
-          description: channel.description,
-          thumbnailUrl: channel.thumbnailUrl,
-        }),
       });
 
       if (response.ok) {
-        alert('チャンネルが登録されました！');
+        // 登録成功後の処理（例: チャンネルリストの更新など）
         return true;
       } else {
         const errorData = await response.json();
-        setError(errorData.message || 'チャンネル登録に失敗しました。');
+        setError(errorData.message || 'Failed to add channel.');
         return false;
       }
     } catch (err) {
-      setError('ネットワークエラー。後でもう一度お試しください。');
+      setError('Network error. Please try again later.');
       return false;
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
-  return { channels, loading, error, searchChannels, registerChannel, setError };
+  return { channels, loading, error, searchChannels, addChannel, setError };
 }

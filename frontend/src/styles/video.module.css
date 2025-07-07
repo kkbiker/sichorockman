@@ -1,0 +1,65 @@
+.container {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.backButton {
+  background-color: #4ECDC4;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.videoPlayerWrapper {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  height: 0;
+  overflow: hidden;
+  background-color: black;
+  margin-bottom: 20px;
+}
+
+.videoPlayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.videoTitle {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: #2C3E50;
+}
+
+.channelName,
+.publishedAt {
+  font-size: 16px;
+  color: #7f8c8d;
+  margin-bottom: 5px;
+}
+
+.relatedVideosTitle {
+  font-size: 20px;
+  margin-top: 40px;
+  margin-bottom: 20px;
+  color: #2C3E50;
+}
+
+.relatedVideosGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.errorMessage {
+  color: #FF6B6B;
+  text-align: center;
+  margin-bottom: 20px;
+}

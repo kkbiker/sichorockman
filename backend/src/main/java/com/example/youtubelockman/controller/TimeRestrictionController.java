@@ -1,8 +1,11 @@
 package com.example.youtubelockman.controller;
 
 import com.example.youtubelockman.model.TimeRestriction;
+import com.example.youtubelockman.payload.TimeRestrictionRequest;
 import com.example.youtubelockman.service.TimeRestrictionService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,34 +21,28 @@ public class TimeRestrictionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TimeRestriction>> getTimeRestrictions(@RequestParam(required = false) Long categoryId) {
-        // Implement logic to get current user ID
-        Long userId = 1L; // Dummy user ID for now
-        return ResponseEntity.ok(timeRestrictionService.getTimeRestrictions(userId, categoryId));
+    public ResponseEntity<List<TimeRestriction>> getTimeRestrictions(@RequestParam(required = false) Long categoryId, @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(timeRestrictionService.getTimeRestrictions(userDetails.getUsername(), categoryId));
     }
 
     @PostMapping
-    public ResponseEntity<TimeRestriction> createTimeRestriction(@RequestBody TimeRestriction timeRestriction) {
-        // Implement logic to get current user ID
-        Long userId = 1L; // Dummy user ID for now
-        return ResponseEntity.ok(timeRestrictionService.createTimeRestriction(userId, timeRestriction));
+    public ResponseEntity<TimeRestriction> createTimeRestriction(@RequestBody TimeRestrictionRequest request, @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(timeRestrictionService.createTimeRestriction(userDetails.getUsername(), request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TimeRestriction> updateTimeRestriction(@PathVariable Long id, @RequestBody TimeRestriction timeRestriction) {
-        return ResponseEntity.ok(timeRestrictionService.updateTimeRestriction(id, timeRestriction));
+    public ResponseEntity<TimeRestriction> updateTimeRestriction(@PathVariable Long id, @RequestBody TimeRestrictionRequest request, @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(timeRestrictionService.updateTimeRestriction(id, request, userDetails.getUsername()));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTimeRestriction(@PathVariable Long id) {
-        timeRestrictionService.deleteTimeRestriction(id);
+    public ResponseEntity<Void> deleteTimeRestriction(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        timeRestrictionService.deleteTimeRestriction(id, userDetails.getUsername());
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/current")
-    public ResponseEntity<String> getCurrentTimeRestrictionStatus() {
-        // Implement logic to get current user ID
-        Long userId = 1L; // Dummy user ID for now
-        return ResponseEntity.ok(timeRestrictionService.getCurrentTimeRestrictionStatus(userId));
+    @GetMapping("/status")
+    public ResponseEntity<List<TimeRestriction>> getCurrentTimeRestrictionStatus(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(timeRestrictionService.getCurrentTimeRestrictions(userDetails.getUsername()));
     }
 }

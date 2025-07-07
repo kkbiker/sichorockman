@@ -1,73 +1,168 @@
 
-.home-container {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+/* Basic Layout */
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #F8F9FA;
+  color: #2C3E50;
+  font-family: 'Noto Sans JP', sans-serif;
 }
 
-.home-header {
+.main {
+  display: flex;
+  flex: 1;
+}
+
+/* Header */
+.header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  padding: 1rem 2rem;
+  background-color: #fff;
+  border-bottom: 1px solid #e0e0e0;
 }
 
-.home-title {
-  color: #ff6b6b;
-  font-size: 28px;
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+  color: #FF6B6B;
 }
 
-.home-button {
-  padding: 10px 15px;
-  background-color: #4ecdc4;
-  color: white;
-  border: none;
-  border-radius: 4px;
+.headerInfo {
+  display: flex;
+  gap: 2rem;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 240px;
+  padding: 1.5rem;
+  background-color: #fff;
+  border-right: 1px solid #e0e0e0;
+}
+
+.sidebar h3 {
   font-size: 16px;
+  margin-bottom: 1rem;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 0.75rem 1rem;
+  border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-.home-button:hover {
-  background-color: #3cb3a7;
+  transition: background-color 0.3s ease-in-out;
 }
 
-.video-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+.activeCategory {
+  background-color: #4ECDC4;
+  color: white;
 }
 
-.video-card {
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+.inactiveCategory {
+  color: #2C3E50;
 }
 
-.video-thumbnail {
+.restrictedCategory {
+  background-color: #F0F0F0; /* Light gray for restricted */
+  color: #95A5A6; /* Gray text */
+  cursor: not-allowed;
+}
+
+/* Main Content */
+.content {
+  flex: 1;
+  padding: 2rem;
+}
+
+.searchBar {
+  margin-bottom: 2rem;
+}
+
+.searchBar input {
   width: 100%;
-  height: 180px;
-  object-fit: cover;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 
-.video-info {
-  padding: 15px;
+.videoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
 }
 
-.video-title {
-  font-size: 18px;
-  margin-bottom: 5px;
-  color: #34495e;
+.videoCard {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: transform 0.3s ease-in-out;
+  position: relative; /* for overlay */
 }
 
-.channel-title {
+.videoCard:hover {
+  transform: translateY(-5px);
+}
+
+.videoCardRestricted {
+  opacity: 0.5; /* 半透明にする */
+  cursor: not-allowed; /* カーソルを無効にする */
+}
+
+.restrictionOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* 黒の半透明オーバーレイ */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: bold;
+  font-size: 1.2em;
+  z-index: 10; /* 他の要素より手前に表示 */
+}
+
+.videoCard img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+
+.videoCard h4 {
+  font-size: 16px;
+  margin: 0.5rem 1rem;
+}
+
+.videoCard p {
   font-size: 14px;
   color: #7f8c8d;
+  margin: 0.5rem 1rem;
 }
 
-.error-message {
-  color: #e74c3c;
-  font-size: 14px;
-  margin-top: 15px;
-  text-align: center;
+/* Footer */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #fff;
+  border-top: 1px solid #e0e0e0;
+}
+
+.footer button {
+  margin-left: 1rem;
+}
+
+.error {
+  color: #FF6B6B;
 }

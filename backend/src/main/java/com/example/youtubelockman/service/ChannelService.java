@@ -7,6 +7,7 @@ import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,10 +26,11 @@ public class ChannelService {
         this.youtubeApiConfig = youtubeApiConfig;
     }
 
+    @Cacheable(value = "channelSearch", key = "#query", cacheManager = "cacheManager")
     public List<Channel> searchChannels(String query) {
         try {
             YouTube.Search.List search = youtube.search().list(List.of("id", "snippet"));
-            search.setKey(youtubeApiConfig.getYoutubeApiKey());
+            
             search.setQ(query);
             search.setType(List.of("channel"));
             search.setFields("items(id/channelId,snippet/title,snippet/description,snippet/thumbnails/default/url)");

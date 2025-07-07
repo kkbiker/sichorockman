@@ -5,6 +5,12 @@
   margin: 0 auto;
 }
 
+.embeddedContainer {
+  padding: 0;
+  max-width: none;
+  margin: 0;
+}
+
 .title {
   color: #ff6b6b;
   text-align: center;

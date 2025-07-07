@@ -7,12 +7,14 @@ import lombok.AllArgsConstructor;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "user_channels")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserChannel {
+public class UserChannel implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
