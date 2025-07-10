@@ -7,21 +7,27 @@ import Link from 'next/link';
 export default function VideoPage() {
   const router = useRouter();
   const { videoId } = router.query;
-  const { getVideoById, loading, error } = useVideos();
+  const { getVideoById, fetchVideos, loading, error } = useVideos();
   const [video, setVideo] = useState(null);
+  const [relatedVideos, setRelatedVideos] = useState([]);
 
   useEffect(() => {
     if (videoId) {
-      const fetchVideo = async () => {
+      const fetchVideoAndRelated = async () => {
         const token = localStorage.getItem('token');
         if (token) {
           const fetchedVideo = await getVideoById(videoId, token);
           setVideo(fetchedVideo);
+          if (fetchedVideo && fetchedVideo.categoryId) {
+            const fetchedRelatedVideos = await fetchVideos(token, fetchedVideo.categoryId, '');
+            // 現在のビデオを除外
+            setRelatedVideos(fetchedRelatedVideos.filter(v => v.youtubeVideoId !== videoId));
+          }
         }
       };
-      fetchVideo();
+      fetchVideoAndRelated();
     }
-  }, [videoId, getVideoById]);
+  }, [videoId, getVideoById, fetchVideos]);
 
   if (loading) return <p>動画を読み込み中...</p>;
   if (error) return <p className={styles.errorMessage}>{error}</p>;
@@ -50,8 +56,19 @@ export default function VideoPage() {
 
       <h2 className={styles.relatedVideosTitle}>関連動画</h2>
       <div className={styles.relatedVideosGrid}>
-        {/* TODO: 同じチャンネルの関連動画を表示 */}
-        <p>関連動画は現在表示できません。</p>
+        {relatedVideos.length > 0 ? (
+          relatedVideos.map((relatedVideo) => (
+            <Link key={relatedVideo.youtubeVideoId} href={`/video/${relatedVideo.youtubeVideoId}`}>
+              <div className={styles.videoCard}>
+                <img src={relatedVideo.thumbnailUrl} alt={relatedVideo.title} />
+                <h4>{relatedVideo.title}</h4>
+                <p>{relatedVideo.channelTitle}</p>
+              </div>
+            </Link>
+          ))
+        ) : (
+          <p>関連動画はありません。</p>
+        )}
       </div>
     </div>
   );

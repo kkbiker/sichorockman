@@ -81,7 +81,7 @@ export default function Home() {
           <span>アクティブ: {headerActiveCategoryDisplay}</span>
         </div>
         <div className={styles.settings}>
-          <Link href="/settings"><button>設定</button></Link>
+          <Link href="/settings"><button className={styles.settingsButton}>設定</button></Link>
         </div>
       </header>
 
@@ -142,8 +142,8 @@ export default function Home() {
       <footer className={styles.footer}>
         <span>© 2025 視聴ロックマン</span>
         <div>
-          <Link href="/settings"><button>設定</button></Link>
-          <button onClick={logout}>ログアウト</button>
+          <Link href="/settings"><button className={styles.settingsButton}>設定</button></Link>
+          <button onClick={logout} className={styles.logoutButton}>ログアウト</button>
         </div>
       </footer>
     </div>

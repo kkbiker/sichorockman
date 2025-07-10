@@ -2,7 +2,6 @@ package com.example.youtubelockman.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -13,7 +12,6 @@ import java.io.Serializable;
 @Table(name = "video_cache")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class VideoCache implements Serializable {
 
     @Id
@@ -40,6 +38,32 @@ public class VideoCache implements Serializable {
 
     @Column(name = "cached_at", nullable = false)
     private LocalDateTime cachedAt;
+
+    @Transient // このフィールドはデータベースに永続化しない
+    private Long categoryId;
+
+    public VideoCache(Long id, String youtubeVideoId, String title, String description, String thumbnailUrl, String channelTitle, String publishedAt, LocalDateTime cachedAt) {
+        this.id = id;
+        this.youtubeVideoId = youtubeVideoId;
+        this.title = title;
+        this.description = description;
+        this.thumbnailUrl = thumbnailUrl;
+        this.channelTitle = channelTitle;
+        this.publishedAt = publishedAt;
+        this.cachedAt = cachedAt;
+    }
+
+    public VideoCache(Long id, String youtubeVideoId, String title, String description, String thumbnailUrl, String channelTitle, String publishedAt, LocalDateTime cachedAt, Long categoryId) {
+        this.id = id;
+        this.youtubeVideoId = youtubeVideoId;
+        this.title = title;
+        this.description = description;
+        this.thumbnailUrl = thumbnailUrl;
+        this.channelTitle = channelTitle;
+        this.publishedAt = publishedAt;
+        this.cachedAt = cachedAt;
+        this.categoryId = categoryId;
+    }
 
     @PrePersist
     protected void onCreate() {

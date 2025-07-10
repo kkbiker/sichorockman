@@ -31,7 +31,7 @@ public class VideoController {
     }
 
     @GetMapping("/{videoId}")
-    public ResponseEntity<VideoCache> getVideoById(@PathVariable String videoId) {
-        return ResponseEntity.ok(videoService.getVideoById(videoId));
+    public ResponseEntity<VideoCache> getVideoById(@PathVariable String videoId, @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(videoService.getVideoById(videoId, userDetails.getUsername()));
     }
 }

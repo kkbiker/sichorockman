@@ -88,6 +88,12 @@ public class UserChannelService {
         userChannelRepository.delete(userChannel);
     }
 
+    public Optional<Category> findCategoryForChannel(String username, String youtubeChannelId) {
+        User user = userRepository.findByEmail(username).orElseThrow(() -> new RuntimeException("User not found"));
+        return userChannelRepository.findByUserIdAndChannel_YoutubeChannelId(user.getId(), youtubeChannelId)
+                .map(UserChannel::getCategory);
+    }
+
     @Cacheable(value = "channelDetail", key = "#youtubeChannelId", cacheManager = "cacheManager")
     private Channel getChannelDetailsFromYoutube(String youtubeChannelId) {
         try {

@@ -11,5 +11,6 @@ public interface UserChannelRepository extends JpaRepository<UserChannel, Long> 
     List<UserChannel> findByUserIdAndCategoryId(Long userId, Long categoryId);
     long countByUserIdAndCategoryId(Long userId, Long categoryId);
     Optional<UserChannel> findByUserIdAndChannel_YoutubeChannelId(Long userId, String youtubeChannelId);
+    Optional<UserChannel> findFirstByChannelYoutubeChannelId(String youtubeChannelId);
     Optional<UserChannel> findByIdAndUserId(Long id, Long userId);
 }

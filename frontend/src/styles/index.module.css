@@ -162,6 +162,29 @@
   margin-left: 1rem;
 }
 
+.settingsButton, .logoutButton {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.settingsButton:hover, .logoutButton:hover {
+    background-color: #f0f0f0;
+}
+
+.logoutButton {
+    background-color: #FF6B6B;
+    color: white;
+    border-color: #FF6B6B;
+}
+
+.logoutButton:hover {
+    background-color: #ff4f4f;
+}
+
 .error {
   color: #FF6B6B;
 }

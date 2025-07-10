@@ -5,7 +5,7 @@ export function useVideos() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const fetchVideos = useCallback(async (token, categoryId = null, searchQuery = '') => {
+  const fetchVideos = useCallback(async (token, categoryId, searchQuery) => {
     setLoading(true);
     setError('');
     try {
@@ -20,6 +20,7 @@ export function useVideos() {
       if (url.endsWith('&')) {
         url = url.slice(0, -1);
       }
+      console.log(url);
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -28,7 +29,15 @@ export function useVideos() {
 
       if (response.ok) {
         const data = await response.json();
-        setVideos(data);
+        console.log("Fetched videos data:", data);
+        if (Array.isArray(data)) {
+          setVideos(data);
+          return data; // Return the fetched data
+        } else {
+          console.error("API returned non-array data for videos:", data);
+          setVideos([]); // Ensure videos is always an array
+          return []; // Return an empty array if data is not an array
+        }
       } else {
         const errorData = await response.json();
         setError(errorData.message || 'Failed to fetch videos.');
@@ -40,14 +49,32 @@ export function useVideos() {
     }
   }, []);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      if (token) {
-        fetchVideos(token, null, ''); // Initial fetch without category or search query
-      }
-    }
-  }, [fetchVideos]);
+  
 
-  return { videos, loading, error, fetchVideos, setError };
+  const getVideoById = useCallback(async (videoId, token) => {
+    setLoading(true);
+    setError('');
+    try {
+      const response = await fetch(`/api/v1/videos/${videoId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Failed to fetch video.');
+        return null;
+      }
+    } catch (err) {
+      setError('Network error. Please try again later.');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { videos, loading, error, fetchVideos, getVideoById, setError };
 }

@@ -94,9 +94,9 @@ public class TimeRestrictionService {
                     LocalTime endTime = restriction.getEndTime();
                     boolean isRestricted;
                     if (startTime.isBefore(endTime)) {
-                        isRestricted = !currentTime.isBefore(startTime) && !currentTime.isAfter(endTime);
+                        isRestricted = currentTime.isAfter(startTime) && currentTime.isBefore(endTime);
                     } else { // Handles overnight restrictions (e.g., 22:00 - 06:00)
-                        isRestricted = !currentTime.isBefore(startTime) || !currentTime.isAfter(endTime);
+                        isRestricted = currentTime.isAfter(startTime) || currentTime.isBefore(endTime);
                     }
                     logger.info("  Restriction: {}, Day: {}, Start: {}, End: {}, Is Restricted: {}",
                             restriction.getCategory().getName(), restriction.getDayOfWeek(), startTime, endTime, isRestricted);
