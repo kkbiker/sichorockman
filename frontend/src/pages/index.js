@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router'; // useRouterをインポート
+import { useRouter } from 'next/router';
 import { useAuth } from '../hooks/useAuth';
 import { useVideos } from '../hooks/useVideos';
 import { useCategories } from '../hooks/useCategories';
@@ -10,11 +10,11 @@ import { useChannels } from '../hooks/useChannels';
 import styles from '../styles/index.module.css';
 
 export default function Home() {
-  const router = useRouter(); // useRouterを初期化
+  const router = useRouter();
   const { isLoggedIn, logout } = useAuth();
   const { videos, loading: videosLoading, error: videosError, fetchVideos } = useVideos();
   const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
-  const { activeRestrictions, loading: restrictionsLoading, error: restrictionsError } = useTimeRestrictions();
+  const { activeRestrictions, loading: restrictionsLoading, error: restrictionsError, fetchActiveTimeRestrictions } = useTimeRestrictions();
   const { channels, getUserChannels } = useChannels();
   const [time, setTime] = useState('');
   const [activeCategory, setActiveCategory] = useState(null);
@@ -26,7 +26,7 @@ export default function Home() {
       setTime(now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }));
     };
     updateClock();
-    const timerId = setInterval(updateClock, 60000);
+    const timerId = setInterval(updateClock, 10000); // Update every 10 seconds
     return () => clearInterval(timerId);
   }, []);
 
@@ -36,17 +36,29 @@ export default function Home() {
     }
   }, [categories, activeCategory]);
 
-  // activeCategory または activeRestrictions が変更されたら動画を再取得
+  // Fetch active restrictions periodically
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token && activeCategory) { // activeCategoryが選択されていることを確認
-      fetchVideos(token, activeCategory, searchQuery); // categoryIdを渡す
-      getUserChannels(activeCategory); // カテゴリに紐づくチャンネルを取得
+    if (token) {
+      fetchActiveTimeRestrictions(token);
+      const intervalId = setInterval(() => {
+        fetchActiveTimeRestrictions(token);
+      }, 60000); // Fetch every minute
+      return () => clearInterval(intervalId);
     }
-  }, [activeCategory, activeRestrictions, searchQuery, fetchVideos, getUserChannels]); // 依存配列にactiveCategoryとactiveRestrictionsを追加
+  }, [fetchActiveTimeRestrictions]);
+
+  // Fetch videos when active category or search query changes
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token && activeCategory) {
+      fetchVideos(token, activeCategory, searchQuery);
+      getUserChannels(activeCategory);
+    }
+  }, [activeCategory, searchQuery, fetchVideos, getUserChannels]);
 
   const isCategoryRestricted = (categoryId) => {
-    return activeRestrictions && activeRestrictions.some(restriction => restriction.category && restriction.category.id === categoryId);
+    return activeRestrictions && activeRestrictions.some(restriction => restriction.category.id === categoryId);
   };
 
   const currentActiveCategoryName = categories.find(c => c.id === activeCategory)?.name;
@@ -59,7 +71,7 @@ export default function Home() {
       alert('このカテゴリは現在、時間制限により視聴できません。');
       return;
     }
-    router.push(`/video/${video.youtubeVideoId}`); // 動画再生ページへ遷移
+    router.push(`/video/${video.youtubeVideoId}`);
   };
 
   if (!isLoggedIn) {
@@ -95,7 +107,7 @@ export default function Home() {
               {categories.map(category => (
                 <li 
                   key={category.id} 
-                  className={isCategoryRestricted(category.id) ? styles.restrictedCategory : (category.id === activeCategory ? styles.activeCategory : styles.inactiveCategory)}
+                  className={`${styles.categoryItem} ${isCategoryRestricted(category.id) ? styles.restrictedCategory : ''} ${category.id === activeCategory ? styles.activeCategory : styles.inactiveCategory}`}
                   onClick={() => setActiveCategory(category.id)}
                 >
                   {category.id === activeCategory ? '✓ ' : ''}{category.name}

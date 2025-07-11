@@ -2,18 +2,15 @@ import { useState, useEffect, useCallback } from 'react';
 
 export function useTimeRestrictions() {
   const [timeRestrictions, setTimeRestrictions] = useState([]);
+  const [activeRestrictions, setActiveRestrictions] = useState([]); // New state for active restrictions
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const fetchTimeRestrictions = useCallback(async (token, categoryId = null) => {
+  const fetchTimeRestrictions = useCallback(async (token) => {
     setLoading(true);
     setError('');
     try {
-      let url = '/api/v1/time-restrictions';
-      if (categoryId) {
-        url += `?categoryId=${categoryId}`;
-      }
-      const response = await fetch(url, {
+      const response = await fetch('/api/v1/time-restrictions', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -32,6 +29,31 @@ export function useTimeRestrictions() {
       setLoading(false);
     }
   }, []);
+
+  // New function to fetch only active restrictions
+  const fetchActiveTimeRestrictions = useCallback(async (token) => {
+    setLoading(true);
+    setError('');
+    try {
+      const response = await fetch('/api/v1/time-restrictions/active', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setActiveRestrictions(data);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Failed to fetch active time restrictions.');
+      }
+    } catch (err) {
+      setError('Network error. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
 
   const createTimeRestriction = useCallback(async (restriction) => {
     setLoading(true);
@@ -54,7 +76,7 @@ export function useTimeRestrictions() {
       });
 
       if (response.ok) {
-        fetchTimeRestrictions(token); // Refresh list
+        fetchTimeRestrictions(token); // Refresh full list
         return true;
       } else {
         const errorData = await response.json();
@@ -90,7 +112,7 @@ export function useTimeRestrictions() {
       });
 
       if (response.ok) {
-        fetchTimeRestrictions(token); // Refresh list
+        fetchTimeRestrictions(token); // Refresh full list
         return true;
       } else {
         const errorData = await response.json();
@@ -124,7 +146,7 @@ export function useTimeRestrictions() {
       });
 
       if (response.ok) {
-        fetchTimeRestrictions(token); // Refresh list
+        fetchTimeRestrictions(token); // Refresh full list
         return true;
       } else {
         const errorData = await response.json();
@@ -139,17 +161,5 @@ export function useTimeRestrictions() {
     }
   }, [fetchTimeRestrictions]);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      if (token) {
-        fetchTimeRestrictions(token);
-        // 1分ごとに更新（必要であれば）
-        const intervalId = setInterval(() => fetchTimeRestrictions(token), 60000);
-        return () => clearInterval(intervalId);
-      }
-    }
-  }, [fetchTimeRestrictions]);
-
-  return { timeRestrictions, loading, error, createTimeRestriction, updateTimeRestriction, deleteTimeRestriction, fetchTimeRestrictions };
+  return { timeRestrictions, activeRestrictions, loading, error, createTimeRestriction, updateTimeRestriction, deleteTimeRestriction, fetchTimeRestrictions, fetchActiveTimeRestrictions };
 }

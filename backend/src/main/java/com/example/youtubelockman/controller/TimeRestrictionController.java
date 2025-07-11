@@ -41,6 +41,11 @@ public class TimeRestrictionController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/active")
+    public ResponseEntity<List<TimeRestriction>> getActiveTimeRestrictions(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(timeRestrictionService.getCurrentTimeRestrictions(userDetails.getUsername()));
+    }
+
     @GetMapping("/status")
     public ResponseEntity<List<TimeRestriction>> getCurrentTimeRestrictionStatus(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(timeRestrictionService.getCurrentTimeRestrictions(userDetails.getUsername()));

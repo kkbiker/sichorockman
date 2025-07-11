@@ -158,7 +158,6 @@ export default function Channels() {
                 <img src={channel.thumbnailUrl} alt={channel.name} className={styles.channelThumbnail} />
                 <div className={styles.channelInfo}>
                   <h3>{channel.name}</h3>
-                  <p>{channel.description}</p>
                   <p>チャンネル登録者数: {channel.subscriberCount ? channel.subscriberCount.toLocaleString() : 'N/A'}人</p>
                   <p>動画数: {channel.videoCount ? channel.videoCount.toLocaleString() : 'N/A'}本</p>
                 </div>
@@ -213,7 +212,6 @@ export default function Channels() {
                       <img src={userChannel.channel.thumbnailUrl} alt={userChannel.channel.name} className={styles.registeredChannelThumbnail} />
                       <div className={styles.registeredChannelInfo}>
                         <h4>{userChannel.channel.name}</h4>
-                        <p>{userChannel.channel.description}</p>
                       </div>
                       <button 
                         onClick={() => handleDeleteRegisteredChannel(userChannel.id)}

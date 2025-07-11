@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useTimeRestrictions } from '../hooks/useTimeRestrictions';
 import { useCategories } from '../hooks/useCategories';
 import styles from '../styles/time-restrictions.module.css';
@@ -39,43 +39,35 @@ export default function TimeRestrictions() {
   } = useTimeRestrictions();
   const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
 
-  const [selectedCategoryId, setSelectedCategoryId] = useState('');
-  const [editingRestriction, setEditingRestriction] = useState(null); // 編集中の時間制限
+  const [editingRestriction, setEditingRestriction] = useState(null); // 編集中の時間制限 { categoryId, dayOfWeek, ... }
   const [newRestrictionForm, setNewRestrictionForm] = useState({
+    categoryId: '',
     dayOfWeek: '',
     startTime: '',
     endTime: '',
   });
 
   useEffect(() => {
-    if (categories.length > 0 && !selectedCategoryId) {
-      setSelectedCategoryId(categories[0].id);
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetchTimeRestrictions(token);
     }
-  }, [categories, selectedCategoryId]);
-
-  useEffect(() => {
-    if (selectedCategoryId) {
-      const token = localStorage.getItem('token');
-      if (token) {
-        if (token) {
-        fetchTimeRestrictions(token, selectedCategoryId); // カテゴリIDを渡して時間制限を取得
-      }
-      }
-    }
-  }, [selectedCategoryId, fetchTimeRestrictions]);
+  }, [fetchTimeRestrictions]);
 
   const handleEditClick = (restriction) => {
     setEditingRestriction(restriction);
     setNewRestrictionForm({
+      categoryId: restriction.category.id,
       dayOfWeek: restriction.dayOfWeek,
-      startTime: restriction.startTime, // 文字列としてそのまま使用
-      endTime: restriction.endTime,     // 文字列としてそのまま使用
+      startTime: restriction.startTime,
+      endTime: restriction.endTime,
     });
   };
 
-  const handleAddClick = (dayOfWeek) => {
+  const handleAddClick = (categoryId, dayOfWeek) => {
     setEditingRestriction(null);
     setNewRestrictionForm({
+      categoryId: categoryId,
       dayOfWeek: dayOfWeek,
       startTime: '',
       endTime: '',
@@ -88,7 +80,7 @@ export default function TimeRestrictions() {
     if (!token) return;
 
     const restrictionData = {
-      categoryId: selectedCategoryId,
+      categoryId: newRestrictionForm.categoryId,
       dayOfWeek: newRestrictionForm.dayOfWeek,
       startTime: newRestrictionForm.startTime,
       endTime: newRestrictionForm.endTime,
@@ -103,12 +95,8 @@ export default function TimeRestrictions() {
 
     if (success) {
       setEditingRestriction(null);
-      setNewRestrictionForm({
-        dayOfWeek: '',
-        startTime: '',
-        endTime: '',
-      });
-      fetchTimeRestrictions(token, selectedCategoryId); // リストを再取得
+      setNewRestrictionForm({ categoryId: '', dayOfWeek: '', startTime: '', endTime: '' });
+      fetchTimeRestrictions(token); // リストを再取得
     }
   };
 
@@ -118,14 +106,14 @@ export default function TimeRestrictions() {
       if (token) {
         const success = await deleteTimeRestriction(id);
         if (success) {
-          fetchTimeRestrictions(token, selectedCategoryId); // リストを再取得
+          fetchTimeRestrictions(token); // リストを再取得
         }
       }
     }
   };
 
-  const getRestrictionForDay = (dayValue) => {
-    return timeRestrictions.find(tr => tr.dayOfWeek === dayValue);
+  const getRestrictionForDay = (categoryId, dayValue) => {
+    return timeRestrictions.find(tr => tr.category.id === categoryId && tr.dayOfWeek === dayValue);
   };
 
   if (categoriesLoading || loading) return <p>読み込み中...</p>;
@@ -135,104 +123,95 @@ export default function TimeRestrictions() {
     <div className={styles.container}>
       <h1 className={styles.title}>時間制限設定</h1>
 
-      <div className={styles.categorySelectContainer}>
-        <label htmlFor="category-select">カテゴリ:</label>
-        <select
-          id="category-select"
-          value={selectedCategoryId}
-          onChange={(e) => setSelectedCategoryId(e.target.value)}
-          className={styles.select}
-        >
-          {categories.map(cat => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
-          ))}
-        </select>
-      </div>
-
-      <table className={styles.restrictionTable}>
-        <thead>
-          <tr>
-            <th>曜日</th>
-            <th>開始時間</th>
-            <th>終了時間</th>
-            <th>設定状態</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          {daysOfWeek.map(day => {
-            const restriction = getRestrictionForDay(day.value);
-            const isEditingThisDay = editingRestriction && editingRestriction.dayOfWeek === day.value;
-            const isAddingThisDay = !editingRestriction && newRestrictionForm.dayOfWeek === day.value;
-
-            return (
-              <tr key={day.value}>
-                <td>{day.label}</td>
-                <td>
-                  {isEditingThisDay || isAddingThisDay ? (
-                    <select
-                      value={newRestrictionForm.startTime}
-                      onChange={(e) => setNewRestrictionForm(prev => ({ ...prev, startTime: e.target.value }))}
-                      className={styles.select}
-                    >
-                      <option value="">--:--</option>
-                      {timeOptions.map(time => (
-                        <option key={time} value={time}>{time}</option>
-                      ))}
-                    </select>
-                  ) : (
-                    <span>{restriction ? restriction.startTime : '設定なし'}</span>
-                  )}
-                </td>
-                <td>
-                  {isEditingThisDay || isAddingThisDay ? (
-                    <select
-                      value={newRestrictionForm.endTime}
-                      onChange={(e) => setNewRestrictionForm(prev => ({ ...prev, endTime: e.target.value }))}
-                      className={styles.select}
-                    >
-                      <option value="">--:--</option>
-                      {timeOptions.map(time => (
-                        <option key={time} value={time}>{time}</option>
-                      ))}
-                    </select>
-                  ) : (
-                    <span>{restriction ? restriction.endTime : '設定なし'}</span>
-                  )}
-                </td>
-                <td>{restriction ? '有効' : '無効'}</td>
-                <td>
-                  {isEditingThisDay || isAddingThisDay ? (
-                    <>
-                      <button onClick={handleSave} className={styles.saveButton} disabled={loading}>
-                        保存
-                      </button>
-                      <button onClick={() => { setEditingRestriction(null); setNewRestrictionForm({ dayOfWeek: '', startTime: '', endTime: '' }); }} className={styles.cancelButton} disabled={loading}>
-                        キャンセル
-                      </button>
-                    </>
-                  ) : (
-                    restriction ? (
-                      <>
-                        <button onClick={() => handleEditClick(restriction)} className={styles.editButton}>
-                          編集
-                        </button>
-                        <button onClick={() => handleDelete(restriction.id)} className={styles.deleteButton}>
-                          削除
-                        </button>
-                      </>
-                    ) : (
-                      <button onClick={() => handleAddClick(day.value)} className={styles.addButton}>
-                        追加
-                      </button>
-                    )
-                  )}
-                </td>
+      {categories.map(category => (
+        <div key={category.id} className={styles.categorySection}>
+          <h2 className={styles.categoryTitle}>{category.name}</h2>
+          <table className={styles.restrictionTable}>
+            <thead>
+              <tr>
+                <th>曜日</th>
+                <th>開始時間</th>
+                <th>終了時間</th>
+                <th>設定状態</th>
+                <th>操作</th>
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {daysOfWeek.map(day => {
+                const restriction = getRestrictionForDay(category.id, day.value);
+                const isEditingThisDay = editingRestriction && editingRestriction.category.id === category.id && editingRestriction.dayOfWeek === day.value;
+                const isAddingThisDay = !editingRestriction && newRestrictionForm.categoryId === category.id && newRestrictionForm.dayOfWeek === day.value;
+
+                return (
+                  <tr key={day.value}>
+                    <td>{day.label}</td>
+                    <td>
+                      {isEditingThisDay || isAddingThisDay ? (
+                        <select
+                          value={newRestrictionForm.startTime}
+                          onChange={(e) => setNewRestrictionForm(prev => ({ ...prev, startTime: e.target.value }))}
+                          className={styles.select}
+                        >
+                          <option value="">--:--</option>
+                          {timeOptions.map(time => (
+                            <option key={time} value={time}>{time}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span>{restriction ? restriction.startTime : '設定なし'}</span>
+                      )}
+                    </td>
+                    <td>
+                      {isEditingThisDay || isAddingThisDay ? (
+                        <select
+                          value={newRestrictionForm.endTime}
+                          onChange={(e) => setNewRestrictionForm(prev => ({ ...prev, endTime: e.target.value }))}
+                          className={styles.select}
+                        >
+                          <option value="">--:--</option>
+                          {timeOptions.map(time => (
+                            <option key={time} value={time}>{time}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span>{restriction ? restriction.endTime : '設定なし'}</span>
+                      )}
+                    </td>
+                    <td>{restriction ? '有効' : '無効'}</td>
+                    <td>
+                      {isEditingThisDay || isAddingThisDay ? (
+                        <>
+                          <button onClick={handleSave} className={styles.saveButton} disabled={loading}>
+                            保存
+                          </button>
+                          <button onClick={() => { setEditingRestriction(null); setNewRestrictionForm({ categoryId: '', dayOfWeek: '', startTime: '', endTime: '' }); }} className={styles.cancelButton} disabled={loading}>
+                            キャンセル
+                          </button>
+                        </>
+                      ) : (
+                        restriction ? (
+                          <>
+                            <button onClick={() => handleEditClick(restriction)} className={styles.editButton}>
+                              編集
+                            </button>
+                            <button onClick={() => handleDelete(restriction.id)} className={styles.deleteButton}>
+                              削除
+                            </button>
+                          </>
+                        ) : (
+                          <button onClick={() => handleAddClick(category.id, day.value)} className={styles.addButton}>
+                            追加
+                          </button>
+                        )
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      ))}
     </div>
   );
 }

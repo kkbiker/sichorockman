@@ -9,6 +9,7 @@ import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.VideoListResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,49 +45,63 @@ public class VideoService {
             return List.of();
         }
 
+        List<String> channelIds = userChannelService.getUserChannels(username, categoryId).stream()
+                .map(userChannel -> userChannel.getChannel().getYoutubeChannelId())
+                .collect(Collectors.toList());
+
+        if (channelIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<VideoCache> allVideos = new ArrayList<>();
         try {
-            YouTube.Search.List search = youtube.search().list(List.of("id", "snippet"));
-            
-            if (categoryId != null) {
-                List<String> channelIds = userChannelService.getUserChannels(username, categoryId).stream()
-                        .map(userChannel -> userChannel.getChannel().getYoutubeChannelId())
-                        .collect(Collectors.toList());
-                logger.info("VideoService - Channel IDs for category {}: {}", categoryId, channelIds);
-                if (!channelIds.isEmpty()) {
-                    String joinedChannelIds = String.join(",", channelIds);
-                    logger.info("VideoService - Joined Channel IDs string: {}", joinedChannelIds);
-                    search.setChannelId(joinedChannelIds);
-                } else {
-                    return List.of();
+            for (String channelId : channelIds) {
+                YouTube.Search.List search = youtube.search().list(List.of("id", "snippet"));
+                search.setChannelId(channelId);
+                search.setOrder("date");
+                if (query != null && !query.isEmpty()) {
+                    search.setQ(query);
+                }
+                search.setType(List.of("video"));
+                search.setFields("items(id/videoId,snippet/title,snippet/description,snippet/thumbnails/default/url,snippet/channelTitle,snippet/publishedAt)");
+                search.setMaxResults((long) (limit / channelIds.size())); // Distribute limit among channels
+
+                SearchListResponse searchResponse = search.execute();
+                List<SearchResult> searchResultList = searchResponse.getItems();
+
+                if (searchResultList != null) {
+                    List<VideoCache> channelVideos = searchResultList.stream()
+                            .map(result -> {
+                                String thumbnailUrl = "";
+                                if (result.getSnippet().getThumbnails() != null) {
+                                    if (result.getSnippet().getThumbnails().getHigh() != null) {
+                                        thumbnailUrl = result.getSnippet().getThumbnails().getHigh().getUrl();
+                                    } else if (result.getSnippet().getThumbnails().getMedium() != null) {
+                                        thumbnailUrl = result.getSnippet().getThumbnails().getMedium().getUrl();
+                                    } else if (result.getSnippet().getThumbnails().getDefault() != null) {
+                                        thumbnailUrl = result.getSnippet().getThumbnails().getDefault().getUrl();
+                                    }
+                                }
+                                return new VideoCache(
+                                        null,
+                                        result.getId().getVideoId(),
+                                        result.getSnippet().getTitle(),
+                                        result.getSnippet().getDescription(),
+                                        thumbnailUrl,
+                                        result.getSnippet().getChannelTitle(),
+                                        result.getSnippet().getPublishedAt().toString(),
+                                        java.time.LocalDateTime.now(),
+                                        categoryId
+                                );
+                            })
+                            .collect(Collectors.toList());
+                    allVideos.addAll(channelVideos);
                 }
             }
+            // Sort all videos by published date, newest first
+            allVideos.sort((v1, v2) -> v2.getPublishedAt().compareTo(v1.getPublishedAt()));
+            return allVideos.stream().limit(limit).collect(Collectors.toList());
 
-            search.setOrder("date");
-            if (query != null && !query.isEmpty()) {
-                search.setQ(query);
-            }
-            search.setType(List.of("video"));
-            search.setFields("items(id/videoId,snippet/title,snippet/description,snippet/thumbnails/default/url,snippet/channelTitle,snippet/publishedAt)");
-            search.setMaxResults((long) limit);
-
-            SearchListResponse searchResponse = search.execute();
-            List<SearchResult> searchResultList = searchResponse.getItems();
-
-            if (searchResultList != null) {
-                return searchResultList.stream()
-                        .map(result -> new VideoCache(
-                                null,
-                                result.getId().getVideoId(),
-                                result.getSnippet().getTitle(),
-                                result.getSnippet().getDescription(),
-                                result.getSnippet().getThumbnails().getDefault().getUrl(),
-                                result.getSnippet().getChannelTitle(),
-                                result.getSnippet().getPublishedAt().toString(),
-                                java.time.LocalDateTime.now(),
-                                categoryId
-                        ))
-                        .collect(Collectors.toList());
-            }
         } catch (IOException e) {
             logger.error("Error fetching videos: ", e);
         }
@@ -146,12 +161,22 @@ public class VideoService {
 
             if (videos != null && !videos.isEmpty()) {
                 com.google.api.services.youtube.model.Video video = videos.get(0);
+                String thumbnailUrl = "";
+                if (video.getSnippet().getThumbnails() != null) {
+                    if (video.getSnippet().getThumbnails().getHigh() != null) {
+                        thumbnailUrl = video.getSnippet().getThumbnails().getHigh().getUrl();
+                    } else if (video.getSnippet().getThumbnails().getMedium() != null) {
+                        thumbnailUrl = video.getSnippet().getThumbnails().getMedium().getUrl();
+                    } else if (video.getSnippet().getThumbnails().getDefault() != null) {
+                        thumbnailUrl = video.getSnippet().getThumbnails().getDefault().getUrl();
+                    }
+                }
                 return new VideoCache(
                         null,
                         video.getId(),
                         video.getSnippet().getTitle(),
                         video.getSnippet().getDescription(),
-                        video.getSnippet().getThumbnails().getDefault().getUrl(),
+                        thumbnailUrl,
                         video.getSnippet().getChannelTitle(),
                         video.getSnippet().getPublishedAt().toString(),
                         java.time.LocalDateTime.now(),

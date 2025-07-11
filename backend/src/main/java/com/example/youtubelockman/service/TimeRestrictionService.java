@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,11 +78,11 @@ public class TimeRestrictionService {
         User user = userRepository.findByEmail(username).orElseThrow(() -> new RuntimeException("User not found"));
         List<TimeRestriction> allRestrictions = timeRestrictionRepository.findByUserId(user.getId());
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Tokyo")); // JSTで現在時刻を取得
         DayOfWeek currentDayOfWeek = now.getDayOfWeek();
         LocalTime currentTime = now.toLocalTime();
 
-        logger.info("Current Time: {}", now);
+        logger.info("Current Time (JST): {}", now);
         logger.info("Current Day of Week: {}", currentDayOfWeek);
         logger.info("Current Time (LocalTime): {}", currentTime);
         logger.info("All Restrictions for user: {}", allRestrictions);

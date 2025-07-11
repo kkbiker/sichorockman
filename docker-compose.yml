@@ -21,14 +21,13 @@ services:
     volumes:
       - ./backend:/app
     env_file:
-      - ./.env
+      - backend/.env
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/youtube_lockman
       - SPRING_DATASOURCE_USERNAME=user
       - SPRING_DATASOURCE_PASSWORD=password
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
-      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
     depends_on:
       - db
       - redis
