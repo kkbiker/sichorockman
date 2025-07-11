@@ -42,6 +42,11 @@
 ```.sh
 docker-compose up --build -d
 ```
+終了時は下記コマンドを実行
+```.sh
+docker-compose down
+```
+
 下記URLにアクセス
 ```.sh
 http://localhost:3000
